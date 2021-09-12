@@ -92,7 +92,7 @@ SELECT
     ROUND((CASE 
         WHEN sub4.log_backs > 0 THEN sub4.log_backs
         ELSE 0
-    END) / sub3.installs, 2) AS Day1_retention
+    END) / sub3.installs, 2) AS Day1_retention. // ROUND(COALESCE(sub4.log_backs / sub3.installs, 0), 2) AS Day1_retention
 FROM (
     SELECT 
         install_dt,
