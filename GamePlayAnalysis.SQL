@@ -54,3 +54,58 @@ sub2 AS (
 SELECT ROUND(COUNT(player_id) / sub2.total_players, 2) AS fraction
 FROM sub1, sub2
 WHERE days_from_first_login = 1
+
+
+/* Show day1-Retention 
+- install date of a player to be the first login day of that player.
+- day 1 retention of some date X to be the number of players whose install date is X
+--- and they logged back in on the day right after X, 
+-- divided by the number of players whose install date is X, 
+--- rounded to 2 decimal places.
+Write an SQL query that reports for each install date, the number of players that installed the game on that day and the day 1 retention.
+*/
+
+-- Show users with install date and days different from the install date 
+WITH 
+    sub1 AS (
+        SELECT 
+            player_id, 
+            (MIN(event_date) OVER(PARTITION BY player_id ORDER BY event_date))
+                AS install_dt,
+            (event_date - MIN(event_date) OVER(PARTITION BY player_id ORDER BY event_date))
+                AS days_from_first_login
+        FROM activity
+    ),
+
+-- Show number of installs by days 
+    sub2 AS (
+        SELECT
+            DISTINCT player_id, 
+            MIN(event_date) OVER (PARTITION BY player_id ORDER BY event_date) 
+                AS install_dt
+        FROM activity 
+    )
+
+SELECT 
+    sub3.install_dt,
+    sub3.installs, 
+    ROUND((CASE 
+        WHEN sub4.log_backs > 0 THEN sub4.log_backs
+        ELSE 0
+    END) / sub3.installs, 2) AS Day1_retention
+FROM (
+    SELECT 
+        install_dt,
+        COUNT(player_id) as installs 
+    FROM sub2 
+    GROUP BY install_dt
+) sub3
+LEFT JOIN (
+    SELECT   
+        install_dt, 
+        COUNT(player_id) as log_backs
+    FROM sub1
+    WHERE days_from_first_login = 1
+    GROUP BY install_dt
+) AS sub4 
+ON sub3.install_dt = sub4.install_dt
