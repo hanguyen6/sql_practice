@@ -70,7 +70,7 @@ Result table:
 # Return the player with highest total scores in a group 
 
 WITH 
-    # Get total scores of the first player 
+    # Get total scores of the players 
     total_scores_union AS (
         SELECT 
             first_player AS player_id,
