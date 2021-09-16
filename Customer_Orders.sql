@@ -52,7 +52,28 @@ ON j1.customer_id = j2.customer_id
 
 
 
+### No-Join Solution 
+WITH 
+    purchases_june_july_100 AS (
+        SELECT 
+            customer_id,
+            name,
+            order_year,
+            order_month,
+            total_prices_monthly,
+            CASE 
+                WHEN total_prices_monthly >= 100 THEN 1
+                ELSE 0 END AS spending_100
+        FROM customer_purchases_monthly
+        WHERE order_year = 2020 AND order_month IN (6,7)
+    )
 
+SELECT
+    customer_id,
+    name
+FROM purchases_june_july_100 
+GROUP BY customer_id, name
+HAVING SUM(spending_100) = 2
 
  
 
