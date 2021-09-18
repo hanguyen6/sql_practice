@@ -25,7 +25,7 @@ WITH
         UNION
             SELECT 
                 num + 1 
-            FROM num_range
+            FROM num_range_customers
             WHERE num < (
                     SELECT 
                         MAX(customer_id)
